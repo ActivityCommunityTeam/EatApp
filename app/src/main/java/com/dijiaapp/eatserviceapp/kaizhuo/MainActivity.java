@@ -1,4 +1,4 @@
-package com.dijiaapp.eatserviceapp;
+package com.dijiaapp.eatserviceapp.kaizhuo;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.dijiaapp.eatserviceapp.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

@@ -1,4 +1,4 @@
-package com.dijiaapp.eatserviceapp;
+package com.dijiaapp.eatserviceapp.kaizhuo;
 
 
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.dijiaapp.eatserviceapp.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

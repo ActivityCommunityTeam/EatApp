@@ -1,7 +1,9 @@
-package com.dijiaapp.eatserviceapp;
+package com.dijiaapp.eatserviceapp.user;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.dijiaapp.eatserviceapp.R;
 
 public class LoginActivity extends AppCompatActivity {
 
