@@ -1,4 +1,4 @@
-package com.dijiaapp.eatserviceapp.kaizhuo;
+package com.dijiaapp.eatserviceapp.data;
 
 /**
  * Created by wjy on 16/8/15.
