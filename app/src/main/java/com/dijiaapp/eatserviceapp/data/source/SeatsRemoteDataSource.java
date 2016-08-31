@@ -43,4 +43,14 @@ public class SeatsRemoteDataSource implements SeatsDataSource {
     public void deleteSeat() {
 
     }
+
+    @Override
+    public void updateSeat(long id, String useStatus) {
+
+    }
+
+    @Override
+    public Observable<String> getStatus(long id) {
+        return null;
+    }
 }

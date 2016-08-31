@@ -22,4 +22,7 @@ public interface SeatsDataSource {
     void deleteAllSeats();
 
     void deleteSeat();
+
+    void updateSeat(long id,String useStatus);
+    Observable<String> getStatus(long id);
 }
