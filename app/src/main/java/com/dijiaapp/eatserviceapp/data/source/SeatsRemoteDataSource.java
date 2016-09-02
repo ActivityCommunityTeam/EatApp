@@ -1,6 +1,7 @@
 package com.dijiaapp.eatserviceapp.data.source;
 
 import com.dijiaapp.eatserviceapp.data.Seat;
+import com.dijiaapp.eatserviceapp.network.Network;
 
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,8 @@ public class SeatsRemoteDataSource implements SeatsDataSource {
     private final static Map<String,Seat> SEATS_SERVICE_DATA = null;
 
     @Override
-    public Observable<List<Seat>> getSeats() {
-        return null;
+    public Observable<List<Seat>> getSeats(long shopId) {
+        return Network.getApiService().listSeats(shopId);
     }
 
     @Override

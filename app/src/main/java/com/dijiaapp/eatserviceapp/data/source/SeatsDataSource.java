@@ -11,7 +11,7 @@ import rx.Observable;
  * Seat数据的接口
  */
 public interface SeatsDataSource {
-    Observable<List<Seat>> getSeats();
+    Observable<List<Seat>> getSeats(long shopId);
 
     Observable<Seat> getSeat(String seatId);
 
