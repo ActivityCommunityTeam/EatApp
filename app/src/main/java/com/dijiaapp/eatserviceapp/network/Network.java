@@ -10,6 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by wjy on 16/9/1.
+ *
  */
 public class Network {
     private static SeatSevice seatSevice;

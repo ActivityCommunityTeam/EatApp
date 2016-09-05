@@ -10,6 +10,7 @@ import rx.Observable;
 
 /**
  * Created by wjy on 16/8/30.
+ *
  */
 public class SeatsRemoteDataSource implements SeatsDataSource {
     private static SeatsRemoteDataSource INSTANCE;
