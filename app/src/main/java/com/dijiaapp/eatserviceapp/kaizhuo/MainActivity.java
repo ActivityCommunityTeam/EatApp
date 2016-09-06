@@ -1,6 +1,7 @@
 package com.dijiaapp.eatserviceapp.kaizhuo;
 
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.dijiaapp.eatserviceapp.R;
+import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnTabSelectListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,7 +24,9 @@ public class MainActivity extends AppCompatActivity {
     TabLayout mMainSeatTablayout;
     @BindView(R.id.main_seat_viewpager)
     ViewPager mMainSeatViewpager;
-
+    @BindView(R.id.bottomBar)
+    BottomBar mBottomBar;
+    private static final int CONTENT_HOME = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +37,19 @@ public class MainActivity extends AppCompatActivity {
         MainViewpagerAdapter adapter = new MainViewpagerAdapter(getSupportFragmentManager());
         mMainSeatViewpager.setAdapter(adapter);
         mMainSeatTablayout.setupWithViewPager(mMainSeatViewpager);
+        mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
+            @Override
+            public void onTabSelected(@IdRes int tabId) {
+                switch (tabId){
+                    case R.id.tab_home:
+                        setContent(CONTENT_HOME);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void setContent(int contentHome) {
 
     }
 
