@@ -3,16 +3,28 @@ package com.dijiaapp.eatserviceapp.kaizhuo;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.dijiaapp.eatserviceapp.R;
+import com.dijiaapp.eatserviceapp.data.Seat;
+import com.dijiaapp.eatserviceapp.data.source.SeatsRemoteDataSource;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import hugo.weaving.DebugLog;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
 
 
 /**
@@ -28,6 +40,8 @@ public class SeatFragment extends Fragment {
 
     private int type;
     private Unbinder unbinder;
+    private SeatRecyclerviewAdapter seatRecyclerviewAdapter;
+    private Subscription subscription;
 
     public SeatFragment() {
         // Required empty public constructor
@@ -55,12 +69,38 @@ public class SeatFragment extends Fragment {
         }
     }
 
+    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_seat, container, false);
         unbinder = ButterKnife.bind(this, view);
+        seatRecyclerviewAdapter = new SeatRecyclerviewAdapter();
+        mSeatRecyclerview.setLayoutManager(new GridLayoutManager(getActivity(),2));
+        mSeatRecyclerview.setAdapter(seatRecyclerviewAdapter);
+        SeatsRemoteDataSource seatsRemoteDataSource = new SeatsRemoteDataSource();
+        subscription = seatsRemoteDataSource.getSeats(16).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<Seat>>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @DebugLog
+                    @Override
+                    public void onError(Throwable e) {
+                        System.out.println(e.toString());
+                    }
+
+                    @DebugLog
+                    @Override
+                    public void onNext(List<Seat> seats) {
+                        System.out.println(seats);
+                        seatRecyclerviewAdapter.setSeatList(seats);
+                    }
+                });
+
         return view;
     }
 
@@ -68,5 +108,8 @@ public class SeatFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+        if(subscription.isUnsubscribed()){
+            subscription.unsubscribe();
+        }
     }
 }

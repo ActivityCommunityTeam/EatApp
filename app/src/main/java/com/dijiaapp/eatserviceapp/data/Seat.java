@@ -56,4 +56,15 @@ public class Seat {
     public void setUseStatus(String useStatus) {
         this.useStatus = useStatus;
     }
+
+    @Override
+    public String toString() {
+        return "Seat{" +
+                "seatType='" + seatType + '\'' +
+                ", containNum=" + containNum +
+                ", seatId=" + seatId +
+                ", seatName='" + seatName + '\'' +
+                ", useStatus='" + useStatus + '\'' +
+                '}';
+    }
 }

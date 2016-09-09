@@ -3,6 +3,7 @@ package com.dijiaapp.eatserviceapp.kaizhuo;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,15 +19,13 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String HOME_TAG = "home_flag";
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
-    @BindView(R.id.main_seat_tablayout)
-    TabLayout mMainSeatTablayout;
-    @BindView(R.id.main_seat_viewpager)
-    ViewPager mMainSeatViewpager;
     @BindView(R.id.bottomBar)
     BottomBar mBottomBar;
     private static final int CONTENT_HOME = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,13 +33,12 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
-        MainViewpagerAdapter adapter = new MainViewpagerAdapter(getSupportFragmentManager());
-        mMainSeatViewpager.setAdapter(adapter);
-        mMainSeatTablayout.setupWithViewPager(mMainSeatViewpager);
+        setContent(CONTENT_HOME);
+
         mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
-                switch (tabId){
+                switch (tabId) {
                     case R.id.tab_home:
                         setContent(CONTENT_HOME);
                         break;
@@ -50,6 +48,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setContent(int contentHome) {
+        switch (contentHome) {
+            case CONTENT_HOME:
+                HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HOME_TAG);
+                if (homeFragment == null) {
+                    homeFragment  = HomeFragment.newInstance("1", "2");
+                }
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.container, homeFragment, HOME_TAG);
+                fragmentTransaction.commit();
+                break;
+        }
 
     }
 
