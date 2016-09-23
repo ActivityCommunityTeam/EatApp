@@ -5,9 +5,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.data.Seat;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -37,13 +40,24 @@ public class SeatRecyclerviewAdapter extends RecyclerView.Adapter<SeatRecyclervi
         return new ViewHolder(view);
     }
 
-    @DebugLog
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Seat seat = seatList.get(position);
+        final Seat seat = seatList.get(position);
         holder.mSeatListitemName.setText(seat.getSeatName());
-        holder.mSeatListitemNumber.setText(seat.getContainNum() + "哈哈");
+        holder.mSeatListitemNumber.setText(String.valueOf(seat.getContainNum()));
         holder.mSeatListitemStatus.setText(seat.getUseStatus());
+
+        holder.view.setOnClickListener(new View.OnClickListener() {
+            @DebugLog
+            @Override
+            public void onClick(View view) {
+                if(seat.getUseStatus().equals("01")){
+                    EventBus.getDefault().post(new EnterActivityEvent(SeatEatNumberActivity.class,seat));
+                }
+
+            }
+        });
+
     }
 
     @Override
@@ -52,6 +66,7 @@ public class SeatRecyclerviewAdapter extends RecyclerView.Adapter<SeatRecyclervi
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        View view;
         @BindView(R.id.seat_listitem_name)
         TextView mSeatListitemName;
         @BindView(R.id.seat_listitem_number)
@@ -61,6 +76,7 @@ public class SeatRecyclerviewAdapter extends RecyclerView.Adapter<SeatRecyclervi
 
         ViewHolder(View view) {
             super(view);
+            this.view = view;
             ButterKnife.bind(this, view);
         }
     }

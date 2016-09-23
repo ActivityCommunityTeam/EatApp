@@ -13,4 +13,36 @@ public class UserInfo extends RealmObject{
     private String waiterName;
 
 
+    public long getWaiterId() {
+        return waiterId;
+    }
+
+    public void setWaiterId(long waiterId) {
+        this.waiterId = waiterId;
+    }
+
+    public long getHotelId() {
+        return hotelId;
+    }
+
+    public void setHotelId(long hotelId) {
+        this.hotelId = hotelId;
+    }
+
+    public String getWaiterName() {
+        return waiterName;
+    }
+
+    public void setWaiterName(String waiterName) {
+        this.waiterName = waiterName;
+    }
+
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "waiterId=" + waiterId +
+                ", hotelId=" + hotelId +
+                ", waiterName='" + waiterName + '\'' +
+                '}';
+    }
 }

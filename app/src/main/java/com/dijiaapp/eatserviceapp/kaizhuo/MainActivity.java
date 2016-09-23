@@ -1,5 +1,6 @@
 package com.dijiaapp.eatserviceapp.kaizhuo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.TabLayout;
@@ -13,6 +14,10 @@ import android.view.MenuItem;
 import com.dijiaapp.eatserviceapp.R;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        EventBus.getDefault().register(this);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
 
@@ -46,7 +52,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void enterSeatNumberActivity(EnterActivityEvent enterActivityEvent){
+        Intent intent = new Intent(this,enterActivityEvent.getGotoClass());
+        intent.putExtra("Seat",enterActivityEvent.getSeat());
+        startActivity(intent);
+    }
     private void setContent(int contentHome) {
         switch (contentHome) {
             case CONTENT_HOME:
@@ -60,6 +71,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override

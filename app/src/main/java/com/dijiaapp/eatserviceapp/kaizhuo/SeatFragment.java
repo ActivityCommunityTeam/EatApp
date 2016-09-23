@@ -1,6 +1,7 @@
 package com.dijiaapp.eatserviceapp.kaizhuo;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,6 +14,10 @@ import android.view.ViewGroup;
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.data.Seat;
 import com.dijiaapp.eatserviceapp.data.source.SeatsRemoteDataSource;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -69,6 +74,7 @@ public class SeatFragment extends Fragment {
         }
     }
 
+
     @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,7 +83,7 @@ public class SeatFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_seat, container, false);
         unbinder = ButterKnife.bind(this, view);
         seatRecyclerviewAdapter = new SeatRecyclerviewAdapter();
-        mSeatRecyclerview.setLayoutManager(new GridLayoutManager(getActivity(),2));
+        mSeatRecyclerview.setLayoutManager(new GridLayoutManager(getActivity(),3));
         mSeatRecyclerview.setAdapter(seatRecyclerviewAdapter);
         SeatsRemoteDataSource seatsRemoteDataSource = new SeatsRemoteDataSource();
         subscription = seatsRemoteDataSource.getSeats(16).subscribeOn(Schedulers.io())
@@ -111,5 +117,6 @@ public class SeatFragment extends Fragment {
         if(subscription.isUnsubscribed()){
             subscription.unsubscribe();
         }
+
     }
 }

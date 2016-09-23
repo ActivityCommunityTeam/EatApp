@@ -1,9 +1,12 @@
 package com.dijiaapp.eatserviceapp.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by wjy on 16/8/15.
  */
-public class Seat {
+public class Seat implements Parcelable {
     /**
      * seatType : 01
      * containNum : 6
@@ -67,4 +70,41 @@ public class Seat {
                 ", useStatus='" + useStatus + '\'' +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.seatType);
+        dest.writeInt(this.containNum);
+        dest.writeInt(this.seatId);
+        dest.writeString(this.seatName);
+        dest.writeString(this.useStatus);
+    }
+
+    public Seat() {
+    }
+
+    protected Seat(Parcel in) {
+        this.seatType = in.readString();
+        this.containNum = in.readInt();
+        this.seatId = in.readInt();
+        this.seatName = in.readString();
+        this.useStatus = in.readString();
+    }
+
+    public static final Parcelable.Creator<Seat> CREATOR = new Parcelable.Creator<Seat>() {
+        @Override
+        public Seat createFromParcel(Parcel source) {
+            return new Seat(source);
+        }
+
+        @Override
+        public Seat[] newArray(int size) {
+            return new Seat[size];
+        }
+    };
 }
