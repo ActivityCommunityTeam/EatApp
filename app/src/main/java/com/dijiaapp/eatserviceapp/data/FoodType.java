@@ -2,13 +2,12 @@ package com.dijiaapp.eatserviceapp.data;
 
 import java.util.List;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by wjy on 16/9/23.
- *
- *
  */
 
 public class FoodType extends RealmObject {
@@ -24,16 +23,7 @@ public class FoodType extends RealmObject {
     private int showSort;
     @PrimaryKey
     private int id;
-    /**
-     * dishesName : 澳门烤肉
-     * onSalePrice : null
-     * memoryCode : null
-     * id : 10000264
-     * dishesUnit : 份
-     * dishesPrice : 48
-     */
-
-    private List<DishesListBean> dishesList;
+    private RealmList<DishesListBean> dishesList;
 
     public String getDishesTypeDesc() {
         return dishesTypeDesc;
@@ -59,12 +49,21 @@ public class FoodType extends RealmObject {
         this.id = id;
     }
 
-    public List<DishesListBean> getDishesList() {
+    public RealmList<DishesListBean> getDishesList() {
         return dishesList;
     }
 
-    public void setDishesList(List<DishesListBean> dishesList) {
+    public void setDishesList(RealmList<DishesListBean> dishesList) {
         this.dishesList = dishesList;
     }
 
+    @Override
+    public String toString() {
+        return "FoodType{" +
+                "dishesTypeDesc='" + dishesTypeDesc + '\'' +
+                ", showSort=" + showSort +
+                ", id=" + id +
+                ", dishesList=" + dishesList +
+                '}';
+    }
 }

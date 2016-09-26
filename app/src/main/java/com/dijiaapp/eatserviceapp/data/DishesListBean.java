@@ -73,4 +73,16 @@ public class DishesListBean extends RealmObject{
     public void setDishesPrice(double dishesPrice) {
         this.dishesPrice = dishesPrice;
     }
+
+    @Override
+    public String toString() {
+        return "DishesListBean{" +
+                "dishesName='" + dishesName + '\'' +
+                ", onSalePrice=" + onSalePrice +
+                ", memoryCode='" + memoryCode + '\'' +
+                ", id=" + id +
+                ", dishesUnit='" + dishesUnit + '\'' +
+                ", dishesPrice=" + dishesPrice +
+                '}';
+    }
 }

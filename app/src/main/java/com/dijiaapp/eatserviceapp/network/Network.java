@@ -1,6 +1,7 @@
 package com.dijiaapp.eatserviceapp.network;
 
 import com.dijiaapp.eatserviceapp.data.UserInfo;
+import com.dijiaapp.eatserviceapp.network.api.FoodService;
 import com.dijiaapp.eatserviceapp.network.api.SeatSevice;
 import com.dijiaapp.eatserviceapp.network.api.UserService;
 
@@ -17,6 +18,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class Network {
     private static SeatSevice seatSevice;
     private static UserService userService;
+    private static FoodService foodService;
+    public static FoodService getFoodService(){
+        if(foodService == null){
+            Retrofit retrofit = getRetrofit();
+            foodService = retrofit.create(FoodService.class);
+        }
+        return foodService;
+    }
+
     public static SeatSevice getApiService(){
         if(seatSevice == null){
             Retrofit retrofit = getRetrofit();

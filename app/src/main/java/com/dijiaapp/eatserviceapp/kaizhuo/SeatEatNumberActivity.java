@@ -1,5 +1,6 @@
 package com.dijiaapp.eatserviceapp.kaizhuo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,9 +10,13 @@ import android.widget.TextView;
 
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.data.Seat;
+import com.dijiaapp.eatserviceapp.diancan.FoodActivity;
+
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SeatEatNumberActivity extends AppCompatActivity {
 
@@ -40,4 +45,10 @@ public class SeatEatNumberActivity extends AppCompatActivity {
 
     }
 
+    @OnClick(R.id.hotel_done_bt)
+    public void onClick() {
+        Intent intent = new Intent(this, FoodActivity.class);
+        intent.putExtra("number", mHotelEatNumberEt.getText().toString());
+        startActivity(intent);
+    }
 }

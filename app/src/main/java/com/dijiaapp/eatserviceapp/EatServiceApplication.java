@@ -16,7 +16,7 @@ public class EatServiceApplication extends Application {
     public void onCreate() {
         super.onCreate();
         LeakCanary.install(this);
-        RealmConfiguration realmConfig = new RealmConfiguration.Builder(this).build();
+        RealmConfiguration realmConfig = new RealmConfiguration.Builder(this).schemaVersion(2).deleteRealmIfMigrationNeeded().build();
         Realm.setDefaultConfiguration(realmConfig);
     }
 }
