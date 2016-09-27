@@ -9,6 +9,9 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.dijiaapp.eatserviceapp.R;
+import com.dijiaapp.eatserviceapp.data.FoodType;
+
+import java.util.List;
 
 
 /**
@@ -18,24 +21,23 @@ import com.dijiaapp.eatserviceapp.R;
  * 邮箱：w489657152@gmail.com
  */
 public class LeftListAdapter extends BaseAdapter {
-    private String[] leftStr;
-    boolean[] flagArray;
+   private List<FoodType> foodTypes;
     private Context context;
-
-    public LeftListAdapter(Context context, String[] leftStr, boolean[] flagArray) {
-        this.leftStr = leftStr;
+   private boolean[] flagArray;
+    public LeftListAdapter(Context context, List<FoodType> foodTypes,boolean[] flagArray) {
         this.context = context;
+        this.foodTypes = foodTypes;
         this.flagArray = flagArray;
     }
 
     @Override
     public int getCount() {
-        return leftStr.length;
+        return foodTypes.size();
     }
 
     @Override
     public Object getItem(int arg0) {
-        return leftStr[arg0];
+        return foodTypes.get(arg0).getDishesTypeDesc();
     }
 
     @Override
@@ -48,7 +50,7 @@ public class LeftListAdapter extends BaseAdapter {
         Holder holder = null;
         if (arg1 == null) {
             holder = new Holder();
-            arg1 = LayoutInflater.from(context).inflate(R.layout.left_list_item, null);
+            arg1 = LayoutInflater.from(context).inflate(R.layout.left_list_item, arg2,false);
             holder.left_list_item = (TextView) arg1.findViewById(R.id.left_list_item);
             arg1.setTag(holder);
         } else {
@@ -62,7 +64,7 @@ public class LeftListAdapter extends BaseAdapter {
         private TextView left_list_item;
 
         public void updataView(final int position) {
-            left_list_item.setText(leftStr[position]);
+            left_list_item.setText(foodTypes.get(position).getDishesTypeDesc());
             if (flagArray[position]) {
                 left_list_item.setBackgroundColor(Color.rgb(255, 255, 255));
             } else {
