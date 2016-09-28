@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -13,7 +14,12 @@ import android.widget.Toast;
 
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.View.SectionedBaseAdapter;
+import com.dijiaapp.eatserviceapp.data.DishesListBean;
 import com.dijiaapp.eatserviceapp.data.FoodType;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -26,9 +32,9 @@ import java.util.List;
 public class MainSectionedAdapter extends SectionedBaseAdapter {
 
     private Context mContext;
-   private List<FoodType> foodTypes;
+    private List<FoodType> foodTypes;
 
-    public MainSectionedAdapter(Context context,List<FoodType> foodTypes) {
+    public MainSectionedAdapter(Context context, List<FoodType> foodTypes) {
         this.mContext = context;
         this.foodTypes = foodTypes;
     }
@@ -63,15 +69,44 @@ public class MainSectionedAdapter extends SectionedBaseAdapter {
         } else {
             layout = (RelativeLayout) convertView;
         }
-        ((TextView) layout.findViewById(R.id.textItem)).setText(foodTypes.get(section).getDishesList().get(position).getDishesName());
-        layout.setOnClickListener(new OnClickListener() {
+        final DishesListBean dishesListBean = foodTypes.get(section).getDishesList().get(position);
+        ((TextView) layout.findViewById(R.id.textItem)).setText(dishesListBean.getDishesName());
+        ((TextView) layout.findViewById(R.id.priceItem)).setText("￥" + dishesListBean.getDishesPrice());
+
+        final Button min = (Button) layout.findViewById(R.id.minBt);
+        Button plus = (Button) layout.findViewById(R.id.plusBt);
+        final TextView amountTv = (TextView) layout.findViewById(R.id.amountTv);
+
+        min.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View arg0) {
-                Toast.makeText(mContext, foodTypes.get(section).getDishesList().get(position).getDishesName(), Toast.LENGTH_SHORT).show();
+            public void onClick(View view) {
+                int amount = Integer.parseInt(amountTv.getText().toString());
+                if (amount != 0) {
+                    amount--;
+                    amountTv.setText(amount + "");
+                }
+                if (amount == 0)
+                    min.setVisibility(View.INVISIBLE);
+                EventBus.getDefault().post(new CartEvent(0,dishesListBean));
+
             }
         });
+
+        plus.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int amount = Integer.parseInt(amountTv.getText().toString());
+                min.setVisibility(View.VISIBLE);
+                amount++;
+                amountTv.setText(amount + "");
+                EventBus.getDefault().post(new CartEvent(1,dishesListBean));
+            }
+        });
+
+
         return layout;
     }
+
 
     @Override
     public View getSectionHeaderView(int section, View convertView, ViewGroup parent) {
@@ -85,6 +120,7 @@ public class MainSectionedAdapter extends SectionedBaseAdapter {
         }
         layout.setClickable(false);
         ((TextView) layout.findViewById(R.id.textItem)).setText(foodTypes.get(section).getDishesTypeDesc());
+
         return layout;
     }
 

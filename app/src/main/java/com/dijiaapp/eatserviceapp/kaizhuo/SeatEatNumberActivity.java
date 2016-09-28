@@ -30,6 +30,7 @@ public class SeatEatNumberActivity extends AppCompatActivity {
     EditText mHotelEatNumberEt;
     @BindView(R.id.hotel_done_bt)
     Button mHotelDoneBt;
+    private Seat seat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class SeatEatNumberActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Seat seat = getIntent().getParcelableExtra("Seat");
+        seat = getIntent().getParcelableExtra("Seat");
         mHotelName.setText(seat.getSeatName());
         mHotelType.setText(seat.getSeatType());
 
@@ -49,6 +50,7 @@ public class SeatEatNumberActivity extends AppCompatActivity {
     public void onClick() {
         Intent intent = new Intent(this, FoodActivity.class);
         intent.putExtra("number", mHotelEatNumberEt.getText().toString());
+        intent.putExtra("seat",seat);
         startActivity(intent);
     }
 }

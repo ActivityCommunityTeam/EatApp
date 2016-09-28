@@ -113,6 +113,7 @@
         <TextView
             android:id="@+id/food_money"
             android:layout_toRightOf="@id/food_cart_bt"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
