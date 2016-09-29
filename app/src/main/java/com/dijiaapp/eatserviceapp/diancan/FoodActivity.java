@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.View.PinnedHeaderListView;
@@ -32,12 +33,12 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
-import io.realm.RealmResults;
 import rx.Observable;
 import rx.Observer;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 import static com.dijiaapp.eatserviceapp.R.id.pinnedListView;
 
@@ -47,6 +48,7 @@ public class FoodActivity extends AppCompatActivity {
     private boolean[] flagArray;
 
     private boolean isScroll = true;
+    CompositeSubscription compositeSubscription;
 
     private Seat seat;
     Realm realm;
@@ -107,7 +109,7 @@ public class FoodActivity extends AppCompatActivity {
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm bgRealm) {
-                bgRealm.copyToRealm(foodTypes);
+                bgRealm.copyToRealmOrUpdate(foodTypes);
             }
         }, new Realm.Transaction.OnSuccess() {
             @DebugLog
@@ -121,7 +123,7 @@ public class FoodActivity extends AppCompatActivity {
             @Override
             public void onError(Throwable error) {
                 // Transaction failed and was automatically canceled.
-                System.out.println(error);
+
             }
         });
     }
@@ -141,7 +143,9 @@ public class FoodActivity extends AppCompatActivity {
     private LeftListAdapter leftListAdapter;
 
     private void setListViews(final List<FoodType> foodTypes) {
-        final MainSectionedAdapter mainSectionedAdapter = new MainSectionedAdapter(this, foodTypes);
+        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+        setCartMoney();
+        final MainSectionedAdapter mainSectionedAdapter = new MainSectionedAdapter(this, foodTypes, carts);
         mPinnedListView.setAdapter(mainSectionedAdapter);
         leftListAdapter = new LeftListAdapter(this, foodTypes, flagArray);
         mLeftListview.setAdapter(leftListAdapter);
@@ -222,6 +226,7 @@ public class FoodActivity extends AppCompatActivity {
         });
     }
 
+    @DebugLog
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void cartEvent(CartEvent event) {
         refreshCart(event);
@@ -230,52 +235,64 @@ public class FoodActivity extends AppCompatActivity {
     //刷新购物车
     @DebugLog
     private void refreshCart(CartEvent event) {
-        double money = 0;
-        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
-        DishesListBean disesBean = event.getDisesBean();
+        int id = event.getDisesBeanId();
+        Cart cart = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).equalTo("dishesListBean.id", id).findFirst();
 
-        if (event.getFlag() == 0) {
-            for (Cart cart : carts) {
-                if (cart.getDishesListBean().getId() == disesBean.getId()) {
-                    int amount = cart.getAmount();
+
+        if (cart != null) {
+            int amount = cart.getAmount();
+            if (event.getFlag() == 0) {
+                if (amount == 1) {
+                    realm.beginTransaction();
+                    cart.deleteFromRealm();
+                    realm.commitTransaction();
+                } else {
                     amount--;
-                    if (amount == 0)
-                        cart.deleteFromRealm();
-                    else
-                        cart.setAmount(amount);
-                    break;
-                }
-            }
-        } else if (event.getFlag() == 1) {
-            for (Cart cart : carts) {
-                if (cart.getDishesListBean().getId() == disesBean.getId()) {
-                    int amount = cart.getAmount();
-                    amount++;
+                    realm.beginTransaction();
+                    cart.setMoney(cart.getDishesListBean().getDishesPrice() * amount);
                     cart.setAmount(amount);
-                    cart.setMoney(disesBean.getDishesPrice() * amount);
-                    break;
-
+                    realm.commitTransaction();
                 }
 
-
+            } else {
+                amount++;
+                realm.beginTransaction();
+                cart.setMoney(amount * cart.getDishesListBean().getDishesPrice());
+                cart.setAmount(amount);
+                realm.commitTransaction();
             }
+        } else {
 
-            realm.beginTransaction();
-            Cart cartNew = realm.createObject(Cart.class);
-            cartNew.setAmount(1);
-            cartNew.setDishesListBean(disesBean);
-            cartNew.setMoney(disesBean.getDishesPrice());
-            cartNew.setTime(Calendar.getInstance().getTime().getTime());
-            cartNew.setSeatId(seat.getSeatId());
-            realm.commitTransaction();
+            if (event.getFlag() == 1) {
+                realm.beginTransaction();
+                DishesListBean disesBean = realm.where(DishesListBean.class).equalTo("id", id).findFirst();
+                Cart cartNew = realm.createObject(Cart.class);
+                cartNew.setAmount(1);
+                cartNew.setDishesListBean(disesBean);
+                cartNew.setMoney(disesBean.getDishesPrice());
+                cartNew.setTime(Calendar.getInstance().getTime().getTime());
+                cartNew.setSeatId(seat.getSeatId());
+                realm.commitTransaction();
+            }
         }
 
-        for (Cart cart : carts) {
-            money += cart.getMoney();
-            System.out.println(money + "::");
-        }
+        setCartMoney();
+    }
+
+    private void setCartMoney() {
+        double money = getMoney();
 
         mFoodMoney.setText("￥" + money);
+    }
+
+    private double getMoney() {
+        double money = 0;
+        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+
+        for (Cart c : carts) {
+            money += c.getMoney();
+        }
+        return money;
     }
 
     @DebugLog
@@ -287,6 +304,7 @@ public class FoodActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         EventBus.getDefault().register(this);
+        compositeSubscription = new CompositeSubscription();
         realm = Realm.getDefaultInstance();
 
         hotelId = realm.where(UserInfo.class).findFirst().getHotelId();
@@ -304,9 +322,11 @@ public class FoodActivity extends AppCompatActivity {
         if (observable == null) {
             getFoodFromNet();
         } else {
-            observable.subscribeOn(Schedulers.io())
+            Subscription subscription = observable.subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(observerFoodFromLocal);
+
+            compositeSubscription.add(subscription);
         }
 
     }
@@ -315,35 +335,28 @@ public class FoodActivity extends AppCompatActivity {
     private Observable<List<FoodType>> getFoodFromLocal() {
 
         List<FoodType> foodTypes = realm.where(FoodType.class).findAll();
-        System.out.println(foodTypes + ":::");
-        if (foodTypes != null && foodTypes.size() > 0) {
+        System.out.println("from local:::");
+        if (foodTypes.size() > 0) {
             return Observable.just(foodTypes);
         } else {
             return null;
         }
-        /*return realm.where(FoodType.class).findAll().asObservable()
-                .filter(new Func1<RealmResults<FoodType>, Boolean>() {
-                    @Override
-                    public Boolean call(RealmResults<FoodType> foodTypes) {
-                        return foodTypes != null && foodTypes.size() > 0;
-                    }
-                })
-                .flatMap(new Func1<RealmResults<FoodType>, Observable<List<FoodType>>>() {
-                    @Override
-                    public Observable<List<FoodType>> call(RealmResults<FoodType> foodTypes) {
-                        return Observable.just(realm.copyFromRealm(foodTypes));
-                    }
-                });*/
-
-
     }
 
+    @DebugLog
     private void getFoodFromNet() {
-        Network.getFoodService().listFoods(hotelId).subscribeOn(Schedulers.io())
+        System.out.println("from net:::");
+        Subscription subscription = Network.getFoodService().listFoods(hotelId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observerFoodFromNet);
-
+        compositeSubscription.add(subscription);
 //        return Network.getFoodService().listFoods(hotelId);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
     }
 
     @Override
@@ -351,6 +364,7 @@ public class FoodActivity extends AppCompatActivity {
         super.onDestroy();
         realm.close();
         EventBus.getDefault().unregister(this);
+        compositeSubscription.unsubscribe();
     }
 
     @OnClick({R.id.food_cart_bt, R.id.food_next})
@@ -360,6 +374,16 @@ public class FoodActivity extends AppCompatActivity {
                 break;
             case R.id.food_next:
                 break;
+        }
+    }
+
+    @OnClick(R.id.food_next)
+    public void onClick() {
+        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+        if(carts.size()>0){
+
+        }else{
+            Toast.makeText(this, "请先选菜品", Toast.LENGTH_SHORT).show();
         }
     }
 }

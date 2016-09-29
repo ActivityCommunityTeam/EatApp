@@ -7,17 +7,17 @@ import com.dijiaapp.eatserviceapp.data.DishesListBean;
  */
 public class CartEvent {
     private int flag;
-    private DishesListBean disesBean;
-    public CartEvent(int i, DishesListBean dishesListBean) {
+    private int disesBeanId;
+    public CartEvent(int i, int disesBeanId) {
         flag = i;
-        disesBean = dishesListBean;
+        this.disesBeanId = disesBeanId;
     }
 
     public int getFlag() {
         return flag;
     }
 
-    public DishesListBean getDisesBean() {
-        return disesBean;
+    public int getDisesBeanId() {
+        return disesBeanId;
     }
 }

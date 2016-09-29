@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.View.SectionedBaseAdapter;
+import com.dijiaapp.eatserviceapp.data.Cart;
 import com.dijiaapp.eatserviceapp.data.DishesListBean;
 import com.dijiaapp.eatserviceapp.data.FoodType;
 
@@ -33,10 +34,12 @@ public class MainSectionedAdapter extends SectionedBaseAdapter {
 
     private Context mContext;
     private List<FoodType> foodTypes;
+    private List<Cart> carts;
 
-    public MainSectionedAdapter(Context context, List<FoodType> foodTypes) {
+    public MainSectionedAdapter(Context context, List<FoodType> foodTypes,List<Cart> carts) {
         this.mContext = context;
         this.foodTypes = foodTypes;
+        this.carts = carts;
     }
 
     @Override
@@ -62,6 +65,8 @@ public class MainSectionedAdapter extends SectionedBaseAdapter {
     @Override
     public View getItemView(final int section, final int position, View convertView, ViewGroup parent) {
         RelativeLayout layout = null;
+        boolean isInCart = false;
+        int amount = 0;
         if (convertView == null) {
             LayoutInflater inflator = (LayoutInflater) parent.getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -76,7 +81,15 @@ public class MainSectionedAdapter extends SectionedBaseAdapter {
         final Button min = (Button) layout.findViewById(R.id.minBt);
         Button plus = (Button) layout.findViewById(R.id.plusBt);
         final TextView amountTv = (TextView) layout.findViewById(R.id.amountTv);
+        for(Cart cart :carts){
+            if(cart.getDishesListBean().getId() == dishesListBean.getId()){
+                isInCart = true;
+                amount = cart.getAmount();
+            }
+        }
 
+        min.setVisibility(isInCart?View.VISIBLE:View.INVISIBLE);
+        amountTv.setText(amount+"");
         min.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,7 +100,7 @@ public class MainSectionedAdapter extends SectionedBaseAdapter {
                 }
                 if (amount == 0)
                     min.setVisibility(View.INVISIBLE);
-                EventBus.getDefault().post(new CartEvent(0,dishesListBean));
+                EventBus.getDefault().post(new CartEvent(0,dishesListBean.getId()));
 
             }
         });
@@ -99,7 +112,7 @@ public class MainSectionedAdapter extends SectionedBaseAdapter {
                 min.setVisibility(View.VISIBLE);
                 amount++;
                 amountTv.setText(amount + "");
-                EventBus.getDefault().post(new CartEvent(1,dishesListBean));
+                EventBus.getDefault().post(new CartEvent(1,dishesListBean.getId()));
             }
         });
 

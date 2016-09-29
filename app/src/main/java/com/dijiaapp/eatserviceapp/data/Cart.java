@@ -3,6 +3,8 @@ package com.dijiaapp.eatserviceapp.data;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
+import static android.R.attr.id;
+
 /**
  * Created by wjy on 16/9/28.
  * 购物车
@@ -14,8 +16,6 @@ public class Cart extends RealmObject {
     private DishesListBean dishesListBean;
     private int seatId;
     private long time;
-    @PrimaryKey
-    private long id;
 
 
     public double getMoney() {
@@ -54,15 +54,19 @@ public class Cart extends RealmObject {
         this.time = time;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public int getSeatId() {
         return seatId;
+    }
+
+    @Override
+    public String toString() {
+        return "Cart{" +
+                "money=" + money +
+                ", amount=" + amount +
+                ", dishesListBean=" + dishesListBean +
+                ", seatId=" + seatId +
+                ", time=" + time +
+                '}';
     }
 }
