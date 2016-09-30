@@ -17,4 +17,5 @@ public interface FoodService {
     @GET("dishes/getDishesList/{id}")
     Observable<List<FoodType>> listFoods(@Path("id") long id);
 
+
 }

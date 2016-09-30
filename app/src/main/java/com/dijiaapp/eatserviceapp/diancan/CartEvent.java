@@ -4,6 +4,7 @@ import com.dijiaapp.eatserviceapp.data.DishesListBean;
 
 /**
  * Created by wjy on 16/9/28.
+ *
  */
 public class CartEvent {
     private int flag;

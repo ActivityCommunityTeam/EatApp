@@ -1,5 +1,7 @@
 package com.dijiaapp.eatserviceapp.diancan;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -49,7 +51,13 @@ public class FoodActivity extends AppCompatActivity {
 
     private boolean isScroll = true;
     CompositeSubscription compositeSubscription;
+    public static void startFoodActivity(Context context,String eatNumber,Seat seat){
+        Intent intent = new Intent(context,FoodActivity.class);
+        intent.putExtra("number",eatNumber);
+        intent.putExtra("seat",seat);
+        context.startActivity(intent);
 
+    }
     private Seat seat;
     Realm realm;
     Observer<List<FoodType>> observerFoodFromNet = new Observer<List<FoodType>>() {
@@ -381,7 +389,10 @@ public class FoodActivity extends AppCompatActivity {
     public void onClick() {
         List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
         if(carts.size()>0){
-
+            Intent intent = new Intent(this,OrderActivity.class);
+            intent.putExtra("seat",seat);
+            intent.putExtra("number",eatNumber);
+            startActivity(intent);
         }else{
             Toast.makeText(this, "请先选菜品", Toast.LENGTH_SHORT).show();
         }

@@ -10,18 +10,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.View.SectionedBaseAdapter;
 import com.dijiaapp.eatserviceapp.data.Cart;
 import com.dijiaapp.eatserviceapp.data.DishesListBean;
 import com.dijiaapp.eatserviceapp.data.FoodType;
-
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.List;
 
 /**

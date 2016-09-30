@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.blankj.utilcode.utils.KeyboardUtils;
 import com.dijiaapp.eatserviceapp.R;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
@@ -73,10 +74,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        KeyboardUtils.hideSoftInput(this);
     }
 
     @Override

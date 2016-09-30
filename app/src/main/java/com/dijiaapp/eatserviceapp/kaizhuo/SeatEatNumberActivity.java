@@ -8,15 +8,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.blankj.utilcode.utils.StringUtils;
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.data.Seat;
 import com.dijiaapp.eatserviceapp.diancan.FoodActivity;
+import com.jakewharton.rxbinding.view.RxView;
+import com.jakewharton.rxbinding.widget.RxTextView;
 
 import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import hugo.weaving.DebugLog;
+import rx.Observable;
+import rx.Observer;
+import rx.functions.Func1;
 
 public class SeatEatNumberActivity extends AppCompatActivity {
 
@@ -42,15 +49,39 @@ public class SeatEatNumberActivity extends AppCompatActivity {
         seat = getIntent().getParcelableExtra("Seat");
         mHotelName.setText(seat.getSeatName());
         mHotelType.setText(seat.getSeatType());
+        RxTextView.textChanges(mHotelEatNumberEt).skip(1)
+                .map(new Func1<CharSequence, Boolean>() {
+                    @DebugLog
+                    @Override
+                    public Boolean call(CharSequence charSequence) {
+                        return !StringUtils.isEmpty(charSequence);
+                    }
+                })
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onCompleted() {
 
+                    }
 
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Boolean aBoolean) {
+                        mHotelDoneBt.setEnabled(aBoolean);
+                    }
+                });
     }
 
     @OnClick(R.id.hotel_done_bt)
     public void onClick() {
-        Intent intent = new Intent(this, FoodActivity.class);
-        intent.putExtra("number", mHotelEatNumberEt.getText().toString());
-        intent.putExtra("seat",seat);
-        startActivity(intent);
+        enterFoodActivity();
+    }
+
+    private void enterFoodActivity() {
+
+        FoodActivity.startFoodActivity(this,mHotelEatNumberEt.getText().toString(),seat);
     }
 }
