@@ -3,7 +3,11 @@ package com.dijiaapp.eatserviceapp.diancan;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AbsListView;
@@ -27,13 +31,18 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
+import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import rx.Observable;
 import rx.Observer;
@@ -42,22 +51,29 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
+import static android.R.id.list;
+import static com.dijiaapp.eatserviceapp.R.id.list_item;
 import static com.dijiaapp.eatserviceapp.R.id.pinnedListView;
 
 public class FoodActivity extends AppCompatActivity {
     int eatNumber;
     long hotelId;
+    @BindView(R.id.food_cart_recyclerview)
+    RecyclerView mFoodCartRecyclerview;
     private boolean[] flagArray;
 
     private boolean isScroll = true;
     CompositeSubscription compositeSubscription;
-    public static void startFoodActivity(Context context,String eatNumber,Seat seat){
-        Intent intent = new Intent(context,FoodActivity.class);
-        intent.putExtra("number",eatNumber);
-        intent.putExtra("seat",seat);
+    private BottomSheetBehavior behavior;
+
+    public static void startFoodActivity(Context context, String eatNumber, Seat seat) {
+        Intent intent = new Intent(context, FoodActivity.class);
+        intent.putExtra("number", eatNumber);
+        intent.putExtra("seat", seat);
         context.startActivity(intent);
 
     }
+
     private Seat seat;
     Realm realm;
     Observer<List<FoodType>> observerFoodFromNet = new Observer<List<FoodType>>() {
@@ -150,8 +166,24 @@ public class FoodActivity extends AppCompatActivity {
     Button mFoodNext;
     private LeftListAdapter leftListAdapter;
 
+
     private void setListViews(final List<FoodType> foodTypes) {
         List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+        OrderedRealmCollection<Cart> carts1 = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+        CartRecyclerViewAdapter adapter = new CartRecyclerViewAdapter(this,carts1);
+        mFoodCartRecyclerview.setAdapter(adapter);
+        behavior = BottomSheetBehavior.from(mFoodCartRecyclerview);
+        behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
         setCartMoney();
         final MainSectionedAdapter mainSectionedAdapter = new MainSectionedAdapter(this, foodTypes, carts);
         mPinnedListView.setAdapter(mainSectionedAdapter);
@@ -320,8 +352,11 @@ public class FoodActivity extends AppCompatActivity {
 
         eatNumber = Integer.parseInt(getIntent().getStringExtra("number"));
         seat = getIntent().getParcelableExtra("seat");
+        mFoodCartRecyclerview.setLayoutManager(new LinearLayoutManager(this));
 
         getFood();
+
+
     }
 
     @DebugLog
@@ -375,26 +410,29 @@ public class FoodActivity extends AppCompatActivity {
         compositeSubscription.unsubscribe();
     }
 
+
     @OnClick({R.id.food_cart_bt, R.id.food_next})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.food_cart_bt:
+                if(behavior != null ){
+                    behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }else if(behavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+                    behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+
                 break;
             case R.id.food_next:
+                List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+                if (carts.size() > 0) {
+                    Intent intent = new Intent(this, OrderActivity.class);
+                    intent.putExtra("seat", seat);
+                    intent.putExtra("number", eatNumber);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "请先选菜品", Toast.LENGTH_SHORT).show();
+                }
                 break;
-        }
-    }
-
-    @OnClick(R.id.food_next)
-    public void onClick() {
-        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
-        if(carts.size()>0){
-            Intent intent = new Intent(this,OrderActivity.class);
-            intent.putExtra("seat",seat);
-            intent.putExtra("number",eatNumber);
-            startActivity(intent);
-        }else{
-            Toast.makeText(this, "请先选菜品", Toast.LENGTH_SHORT).show();
         }
     }
 }

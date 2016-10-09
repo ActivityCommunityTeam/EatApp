@@ -20,7 +20,6 @@ import hugo.weaving.DebugLog;
 
 /**
  * Created by wjy on 16/8/15.
- *
  */
 public class SeatRecyclerviewAdapter extends RecyclerView.Adapter<SeatRecyclerviewAdapter.ViewHolder> {
     private List<Seat> seatList;
@@ -51,10 +50,7 @@ public class SeatRecyclerviewAdapter extends RecyclerView.Adapter<SeatRecyclervi
             @DebugLog
             @Override
             public void onClick(View view) {
-                if(seat.getUseStatus().equals("01")){
-                    EventBus.getDefault().post(new EnterActivityEvent(SeatEatNumberActivity.class,seat));
-                }
-
+                EventBus.getDefault().post(new EnterActivityEvent(SeatEatNumberActivity.class, seat));
             }
         });
 

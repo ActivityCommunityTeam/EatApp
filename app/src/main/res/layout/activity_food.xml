@@ -23,6 +23,7 @@
 
     <include layout="@layout/content_food" />
 
+    <include layout="@layout/content_bottomsheet" />
 
 
 </android.support.design.widget.CoordinatorLayout>
