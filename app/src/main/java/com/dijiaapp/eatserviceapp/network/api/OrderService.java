@@ -46,6 +46,6 @@ public interface OrderService {
      * @param hotelId
      * @return
      */
-   @GET("sm/getOrderItem/{hotelId}")
+   @GET("order/getOrderItem/{hotelId}")
     Observable<List<TableInfo>> listOrder(@Path("hotelId") long hotelId);
 }

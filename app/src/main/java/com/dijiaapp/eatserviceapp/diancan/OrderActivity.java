@@ -132,19 +132,14 @@ public class OrderActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
-        if(subscription != null && !subscription.isUnsubscribed()){
+        if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }
     }
 
     @OnClick(R.id.food_next)
     public void onClick() {
-        subscription = Network.getOrderService().saveOrder(order.getHotelId(),
-                order.getUserId(),
-                order.getOrdreTotal(),
-                order.getDinnerNum(),
-                order.getRemark(),
-                new Gson().toJson(order.getDishes()))
+        subscription = Network.getOrderService().saveOrder(order.getHotelId(), order.getUserId(), order.getOrdreTotal(), order.getDinnerNum(), order.getRemark(), new Gson().toJson(order.getDishes()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observer);
@@ -164,7 +159,7 @@ public class OrderActivity extends AppCompatActivity {
         @DebugLog
         @Override
         public void onNext(ResultInfo resultInfo) {
-            if(resultInfo.getCode() == 1001){
+            if (resultInfo.getCode() == 1001) {
                 Toast.makeText(OrderActivity.this, resultInfo.getMsg(), Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(OrderActivity.this, MainActivity.class));
             }

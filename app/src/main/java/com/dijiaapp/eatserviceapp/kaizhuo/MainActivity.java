@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 
 import com.blankj.utilcode.utils.KeyboardUtils;
 import com.dijiaapp.eatserviceapp.R;
+import com.dijiaapp.eatserviceapp.order.OrdersFragment;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
@@ -22,10 +24,13 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Case;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String HOME_TAG = "home_flag";
+    private static final String ORDERS_TAG = "orders_flag";
+    private static final int CONTENT_ORDERS = 2;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.bottomBar)
@@ -49,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.tab_home:
                         setContent(CONTENT_HOME);
                         break;
+                    case R.id.tab_order:
+                        setContent(CONTENT_ORDERS);
+                        break;
                 }
             }
         });
@@ -66,12 +74,28 @@ public class MainActivity extends AppCompatActivity {
                 if (homeFragment == null) {
                     homeFragment  = HomeFragment.newInstance("1", "2");
                 }
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.container, homeFragment, HOME_TAG);
-                fragmentTransaction.commit();
+                setFragment(homeFragment,HOME_TAG);
+                break;
+            case CONTENT_ORDERS:
+                OrdersFragment orderFragment = (OrdersFragment) getSupportFragmentManager().findFragmentByTag(ORDERS_TAG);
+                if(orderFragment == null){
+                    orderFragment = OrdersFragment.newInstance();
+                }
+                setFragment(orderFragment,ORDERS_TAG);
                 break;
         }
 
+    }
+
+    /**
+     * 设置fragment
+     * @param fragment
+     */
+
+    private void setFragment(Fragment fragment,String tag) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.container, fragment, tag);
+        fragmentTransaction.commit();
     }
 
 

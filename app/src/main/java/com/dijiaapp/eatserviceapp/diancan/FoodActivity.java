@@ -173,6 +173,7 @@ public class FoodActivity extends AppCompatActivity {
         CartRecyclerViewAdapter adapter = new CartRecyclerViewAdapter(this,carts1);
         mFoodCartRecyclerview.setAdapter(adapter);
         behavior = BottomSheetBehavior.from(mFoodCartRecyclerview);
+
         behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -278,10 +279,11 @@ public class FoodActivity extends AppCompatActivity {
         int id = event.getDisesBeanId();
         Cart cart = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).equalTo("dishesListBean.id", id).findFirst();
 
-
+            //flag 0代表减 1 加。
         if (cart != null) {
             int amount = cart.getAmount();
             if (event.getFlag() == 0) {
+                //减分两种情况 还剩一件的时候 直接删除 菜品，否则减一
                 if (amount == 1) {
                     realm.beginTransaction();
                     cart.deleteFromRealm();
@@ -378,7 +380,6 @@ public class FoodActivity extends AppCompatActivity {
     private Observable<List<FoodType>> getFoodFromLocal() {
 
         List<FoodType> foodTypes = realm.where(FoodType.class).findAll();
-        System.out.println("from local:::");
         if (foodTypes.size() > 0) {
             return Observable.just(foodTypes);
         } else {
@@ -388,12 +389,10 @@ public class FoodActivity extends AppCompatActivity {
 
     @DebugLog
     private void getFoodFromNet() {
-        System.out.println("from net:::");
         Subscription subscription = Network.getFoodService().listFoods(hotelId).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observerFoodFromNet);
         compositeSubscription.add(subscription);
-//        return Network.getFoodService().listFoods(hotelId);
     }
 
     @Override
