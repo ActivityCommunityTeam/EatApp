@@ -18,7 +18,7 @@ public class SeatsRemoteDataSource implements SeatsDataSource {
 
     @Override
     public Observable<List<Seat>> getSeats(long shopId) {
-        return Network.getApiService().listSeats(shopId);
+        return Network.getSeatService().listSeats(shopId);
     }
 
     @Override

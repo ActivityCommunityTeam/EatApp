@@ -10,9 +10,15 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 public class EnterActivityEvent {
     private Class gotoClass;
     private Seat seat;
+    private String id;
     public EnterActivityEvent(Class gotoClass,Seat seat) {
         this.gotoClass = gotoClass;
         this.seat = seat;
+    }
+
+    public EnterActivityEvent(Class gotoClass, Seat seat, String id) {
+        this(gotoClass,seat);
+        this.id = id;
     }
 
     public Class getGotoClass() {
@@ -21,5 +27,18 @@ public class EnterActivityEvent {
 
     public Seat getSeat() {
         return seat;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "EnterActivityEvent{" +
+                "gotoClass=" + gotoClass +
+                ", seat=" + seat +
+                ", id='" + id + '\'' +
+                '}';
     }
 }

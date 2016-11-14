@@ -23,6 +23,7 @@ import com.dijiaapp.eatserviceapp.View.PinnedHeaderListView;
 import com.dijiaapp.eatserviceapp.data.Cart;
 import com.dijiaapp.eatserviceapp.data.DishesListBean;
 import com.dijiaapp.eatserviceapp.data.FoodType;
+import com.dijiaapp.eatserviceapp.data.OrderInfo;
 import com.dijiaapp.eatserviceapp.data.Seat;
 import com.dijiaapp.eatserviceapp.data.UserInfo;
 import com.dijiaapp.eatserviceapp.network.Network;
@@ -65,11 +66,23 @@ public class FoodActivity extends AppCompatActivity {
     private boolean isScroll = true;
     CompositeSubscription compositeSubscription;
     private BottomSheetBehavior behavior;
+    private int seatId;
+    private OrderInfo orderInfo;
+    private boolean isAddFood = false;//是不是添加订单
 
     public static void startFoodActivity(Context context, String eatNumber, Seat seat) {
         Intent intent = new Intent(context, FoodActivity.class);
         intent.putExtra("number", eatNumber);
         intent.putExtra("seat", seat);
+        context.startActivity(intent);
+
+    }
+
+    public static void startFoodActivity(Context context, OrderInfo orderInfo) {
+
+        Intent intent = new Intent(context, FoodActivity.class);
+        intent.putExtra("orderInfo", orderInfo);
+        intent.putExtra("addFood", true);
         context.startActivity(intent);
 
     }
@@ -168,12 +181,12 @@ public class FoodActivity extends AppCompatActivity {
 
 
     private void setListViews(final List<FoodType> foodTypes) {
-        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
-        OrderedRealmCollection<Cart> carts1 = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
-        CartRecyclerViewAdapter adapter = new CartRecyclerViewAdapter(this,carts1);
+        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seatId).findAll();
+        OrderedRealmCollection<Cart> carts1 = realm.where(Cart.class).equalTo("seatId", seatId).findAll();
+        CartRecyclerViewAdapter adapter = new CartRecyclerViewAdapter(this, carts1);
         mFoodCartRecyclerview.setAdapter(adapter);
         behavior = BottomSheetBehavior.from(mFoodCartRecyclerview);
-
+        behavior.setHideable(true);
         behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -277,9 +290,9 @@ public class FoodActivity extends AppCompatActivity {
     @DebugLog
     private void refreshCart(CartEvent event) {
         int id = event.getDisesBeanId();
-        Cart cart = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).equalTo("dishesListBean.id", id).findFirst();
+        Cart cart = realm.where(Cart.class).equalTo("seatId", seatId).equalTo("dishesListBean.id", id).findFirst();
 
-            //flag 0代表减 1 加。
+        //flag 0代表减 1 加。
         if (cart != null) {
             int amount = cart.getAmount();
             if (event.getFlag() == 0) {
@@ -313,7 +326,7 @@ public class FoodActivity extends AppCompatActivity {
                 cartNew.setDishesListBean(disesBean);
                 cartNew.setMoney(disesBean.getDishesPrice());
                 cartNew.setTime(Calendar.getInstance().getTime().getTime());
-                cartNew.setSeatId(seat.getSeatId());
+                cartNew.setSeatId(seatId);
                 realm.commitTransaction();
             }
         }
@@ -329,7 +342,7 @@ public class FoodActivity extends AppCompatActivity {
 
     private double getMoney() {
         double money = 0;
-        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seatId).findAll();
 
         for (Cart c : carts) {
             money += c.getMoney();
@@ -352,13 +365,26 @@ public class FoodActivity extends AppCompatActivity {
         hotelId = realm.where(UserInfo.class).findFirst().getHotelId();
 
 
-        eatNumber = Integer.parseInt(getIntent().getStringExtra("number"));
-        seat = getIntent().getParcelableExtra("seat");
+        Intent intent = getIntent();
+        isAddFood = intent.getBooleanExtra("addFood", false);
+        initData(intent);
         mFoodCartRecyclerview.setLayoutManager(new LinearLayoutManager(this));
 
         getFood();
 
 
+    }
+
+    @DebugLog
+    private void initData(Intent intent) {
+        if (isAddFood) {
+            orderInfo = intent.getParcelableExtra("orderInfo");
+            seatId = Integer.parseInt(orderInfo.getSeatName());
+        } else {
+            eatNumber = Integer.parseInt(intent.getStringExtra("number"));
+            seat = intent.getParcelableExtra("seat");
+            seatId = seat.getSeatId();
+        }
     }
 
     @DebugLog
@@ -414,19 +440,24 @@ public class FoodActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.food_cart_bt:
-                if(behavior != null ){
+                if (behavior != null) {
                     behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                }else if(behavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+                } else if (behavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                     behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 }
 
                 break;
             case R.id.food_next:
-                List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
+                List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seatId).findAll();
                 if (carts.size() > 0) {
                     Intent intent = new Intent(this, OrderActivity.class);
-                    intent.putExtra("seat", seat);
-                    intent.putExtra("number", eatNumber);
+                    if (isAddFood) {
+                        intent.putExtra("addFood",true);
+                        intent.putExtra("orderInfo",orderInfo);
+                    } else {
+                        intent.putExtra("seat", seat);
+                        intent.putExtra("number", eatNumber);
+                    }
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, "请先选菜品", Toast.LENGTH_SHORT).show();

@@ -15,4 +15,5 @@
     <string name="next_step">下一步</string>
     <string name="title_activity_order">OrderActivity</string>
     <string name="bottomsheet_behavior">android.support.design.widget.BottomSheetBehavior</string>
+    <string name="title_activity_order_detail">OrderDetailActivity</string>
 </resources>

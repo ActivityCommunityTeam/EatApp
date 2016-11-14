@@ -10,21 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dijiaapp.eatserviceapp.R;
-import com.dijiaapp.eatserviceapp.data.TableInfo;
-import com.dijiaapp.eatserviceapp.data.UserInfo;
-import com.dijiaapp.eatserviceapp.network.Network;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import hugo.weaving.DebugLog;
-import io.realm.Realm;
-import rx.Observer;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,6 +58,7 @@ public class OrdersFragment extends Fragment {
         OrdersViewpagerAdapter adapter = new OrdersViewpagerAdapter(getChildFragmentManager());
         mOrderViewpager.setAdapter(adapter);
         mOrderTablayout.setupWithViewPager(mOrderViewpager);
+
         return view;
     }
 

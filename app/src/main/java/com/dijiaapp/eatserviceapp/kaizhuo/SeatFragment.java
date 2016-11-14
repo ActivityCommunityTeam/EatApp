@@ -88,7 +88,6 @@ public class SeatFragment extends Fragment {
         realm = Realm.getDefaultInstance();
 
         UserInfo userInfo = realm.where(UserInfo.class).findFirst();
-        System.out.println(userInfo+"::::");
         hotelId = userInfo.getHotelId();
         setList();
     }
@@ -106,7 +105,6 @@ public class SeatFragment extends Fragment {
                     @Override
                     public Boolean call(Seat seat) {
                         switch (type) {
-
                             case 1:
                                 return seat.getSeatType().equals("01");
                             case 2:

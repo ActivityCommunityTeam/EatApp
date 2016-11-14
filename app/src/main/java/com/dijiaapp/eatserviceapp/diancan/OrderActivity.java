@@ -19,6 +19,7 @@ import com.dijiaapp.eatserviceapp.data.Cart;
 import com.dijiaapp.eatserviceapp.data.DishesListBean;
 import com.dijiaapp.eatserviceapp.data.Order;
 import com.dijiaapp.eatserviceapp.data.OrderDishes;
+import com.dijiaapp.eatserviceapp.data.OrderInfo;
 import com.dijiaapp.eatserviceapp.data.ResultInfo;
 import com.dijiaapp.eatserviceapp.data.Seat;
 import com.dijiaapp.eatserviceapp.data.UserInfo;
@@ -34,11 +35,15 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hugo.weaving.DebugLog;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
+
+import static com.dijiaapp.eatserviceapp.network.Network.getOrderService;
 
 public class OrderActivity extends AppCompatActivity {
 
@@ -66,8 +71,12 @@ public class OrderActivity extends AppCompatActivity {
     private double orderMoney;
     private Order order;
     private List<OrderDishes> dishesList = new ArrayList<>();
-    private Subscription subscription;
-
+    private RealmResults<Cart> carts;
+    private int seatId;
+    private boolean isAddFood;
+    private int eatNubmer;
+    private OrderInfo orderInfo;
+    private CompositeSubscription compositeSubscription;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,19 +84,27 @@ public class OrderActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        compositeSubscription = new CompositeSubscription();
         realm = Realm.getDefaultInstance();
         Intent intent = getIntent();
-        int eatNubmer = intent.getIntExtra("number", 0);
-        Seat seat = intent.getParcelableExtra("seat");
-        List<Cart> carts = realm.where(Cart.class).equalTo("seatId", seat.getSeatId()).findAll();
         UserInfo user = realm.where(UserInfo.class).findFirst();
+        isAddFood = intent.getBooleanExtra("addFood", false);
+        if (isAddFood) {
+            orderInfo = intent.getParcelableExtra("orderInfo");
+            seatId = Integer.parseInt(orderInfo.getSeatName());
 
-        order = new Order();
-        order.setDinnerNum(eatNubmer);
-        order.setHotelId(user.getHotelId());
-        order.setUserId(user.getWaiterId());
-        order.setSeatName(seat.getSeatName());
-
+            dishesList = new ArrayList<>();
+        } else {
+            eatNubmer = intent.getIntExtra("number", 0);
+            Seat seat = intent.getParcelableExtra("seat");
+            seatId = seat.getSeatId();
+            order = new Order();
+            order.setDinnerNum(eatNubmer);
+            order.setHotelId(user.getHotelId());
+            order.setUserId(user.getWaiterId());
+            order.setSeatName(seatId + "");
+        }
+        carts = realm.where(Cart.class).equalTo("seatId", seatId).findAll();
         mOrderTime.setText(TimeUtils.getCurTimeString());
         mOrderName.setText(user.getWaiterName());
         mOrderNumber.setText(eatNubmer + "人");
@@ -123,26 +140,59 @@ public class OrderActivity extends AppCompatActivity {
             mFoodContainer.addView(foodItem);
 
         }
-
-        order.setOrdreTotal(orderMoney);
-        order.setDishes(dishesList);
+        if (!isAddFood) {
+            order.setOrdreTotal(orderMoney);
+            order.setDishes(dishesList);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
-        if (subscription != null && !subscription.isUnsubscribed()) {
-            subscription.unsubscribe();
+        if (compositeSubscription != null && !compositeSubscription.isUnsubscribed()) {
+            compositeSubscription.unsubscribe();
         }
     }
 
     @OnClick(R.id.food_next)
     public void onClick() {
-        subscription = Network.getOrderService().saveOrder(order.getHotelId(), order.getUserId(), order.getOrdreTotal(), order.getDinnerNum(), order.getRemark(), new Gson().toJson(order.getDishes()))
+        if (isAddFood) {
+            addFoodOrder();
+        } else
+            saveOrder();
+    }
+
+    private void addFoodOrder() {
+       Subscription addFoodSubscription =  Network.getOrderService().addDishes(orderInfo.getOrderId(), orderMoney, new Gson().toJson(dishesList))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ResultInfo>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @DebugLog
+                    @Override
+                    public void onNext(ResultInfo resultInfo) {
+                       finishOrder(resultInfo);
+                    }
+                });
+        compositeSubscription.add(addFoodSubscription);
+    }
+
+    private void saveOrder() {
+       Subscription subscription = getOrderService().saveOrder(order.getHotelId(), order.getUserId(), order.getOrdreTotal(), order.getDinnerNum(), order.getSeatName(), new Gson().toJson(order.getDishes()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(observer);
+        compositeSubscription.add(subscription);
     }
 
     Observer<ResultInfo> observer = new Observer<ResultInfo>() {
@@ -160,9 +210,21 @@ public class OrderActivity extends AppCompatActivity {
         @Override
         public void onNext(ResultInfo resultInfo) {
             if (resultInfo.getCode() == 1001) {
-                Toast.makeText(OrderActivity.this, resultInfo.getMsg(), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(OrderActivity.this, MainActivity.class));
+                finishOrder(resultInfo);
+
             }
         }
     };
+
+    /**
+     * 结束本次订单
+     * @param resultInfo
+     */
+    private void finishOrder(ResultInfo resultInfo) {
+        Toast.makeText(OrderActivity.this, resultInfo.getMsg(), Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(OrderActivity.this, MainActivity.class));
+        realm.beginTransaction();
+        carts.deleteAllFromRealm();
+        realm.commitTransaction();
+    }
 }

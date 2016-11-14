@@ -4,13 +4,14 @@ package com.dijiaapp.eatserviceapp.order;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.dijiaapp.eatserviceapp.R;
-import com.dijiaapp.eatserviceapp.data.TableInfo;
+import com.dijiaapp.eatserviceapp.data.OrderInfo;
 import com.dijiaapp.eatserviceapp.data.UserInfo;
 import com.dijiaapp.eatserviceapp.network.Network;
 
@@ -28,8 +29,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
-import static android.R.attr.fragment;
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -44,6 +43,7 @@ public class OrderItemFragment extends Fragment {
     Realm realm;
     long hotelId;
     private Subscription subscription;
+    private OrdersItemAdapter ordersItemAdapter;
 
     public OrderItemFragment() {
         // Required empty public constructor
@@ -80,25 +80,24 @@ public class OrderItemFragment extends Fragment {
     @DebugLog
     private void getOrders() {
         subscription = Network.getOrderService().listOrder(hotelId).subscribeOn(Schedulers.io())
-                .flatMap(new Func1<List<TableInfo>, Observable<TableInfo>>() {
+                .flatMap(new Func1<List<OrderInfo>, Observable<OrderInfo>>() {
                     @Override
-                    public Observable<TableInfo> call(List<TableInfo> tableInfos) {
-                        return Observable.from(tableInfos);
+                    public Observable<OrderInfo> call(List<OrderInfo> orderInfos) {
+                        return Observable.from(orderInfos);
                     }
                 })
-                .filter(new Func1<TableInfo, Boolean>() {
+                .filter(new Func1<OrderInfo, Boolean>() {
                     @Override
-                    public Boolean call(TableInfo tableInfo) {
+                    public Boolean call(OrderInfo orderInfo) {
                         if (type == 0)
-                            return tableInfo.getStatusId().equals("01");
+                            return orderInfo.getStatusId().equals("01") || orderInfo.getStatusId().equals("02");
                         else
-                            return tableInfo.getStatusId().equals("02");
+                            return orderInfo.getStatusId().equals("03");
                     }
                 })
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
-
-                .subscribe(new Observer<List<TableInfo>>() {
+                .subscribe(new Observer<List<OrderInfo>>() {
                     @Override
                     public void onCompleted() {
 
@@ -112,8 +111,8 @@ public class OrderItemFragment extends Fragment {
 
                     @DebugLog
                     @Override
-                    public void onNext(List<TableInfo> tableInfos) {
-
+                    public void onNext(List<OrderInfo> orderInfos) {
+                        ordersItemAdapter.setOrderInfos(orderInfos);
                     }
                 });
 
@@ -133,7 +132,9 @@ public class OrderItemFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_order_item, container, false);
         unbinder = ButterKnife.bind(this, view);
-
+        ordersItemAdapter = new OrdersItemAdapter();
+        mOrderitemRecyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mOrderitemRecyclerview.setAdapter(ordersItemAdapter);
         return view;
     }
 

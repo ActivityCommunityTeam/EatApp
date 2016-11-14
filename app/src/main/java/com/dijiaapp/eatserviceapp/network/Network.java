@@ -37,7 +37,7 @@ public class Network {
         return foodService;
     }
 
-    public static SeatSevice getApiService() {
+    public static SeatSevice getSeatService() {
         if (seatSevice == null) {
             Retrofit retrofit = getRetrofit();
             seatSevice = retrofit.create(SeatSevice.class);

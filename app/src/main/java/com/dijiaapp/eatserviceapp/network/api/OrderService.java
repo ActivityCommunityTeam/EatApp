@@ -1,8 +1,8 @@
 package com.dijiaapp.eatserviceapp.network.api;
 
 import com.dijiaapp.eatserviceapp.data.Order;
+import com.dijiaapp.eatserviceapp.data.OrderInfo;
 import com.dijiaapp.eatserviceapp.data.ResultInfo;
-import com.dijiaapp.eatserviceapp.data.TableInfo;
 
 import java.util.List;
 
@@ -20,21 +20,23 @@ import rx.Observable;
 public interface OrderService {
     /**
      * 提交订单
+     *
      * @param hotelId
      * @param userId
      * @param orderTotal
      * @param number
-     * @param remark
+     * @param seatName
      * @param dishes
      * @return
      */
     @POST("order/save")
     @FormUrlEncoded
     Observable<ResultInfo> saveOrder(@Field("hotelId") long hotelId, @Field("userId") long userId, @Field("orderTotal") double orderTotal, @Field("dinnerNum") int number,
-                                     @Field("seatName") String remark, @Field("dishes") String dishes);
+                                     @Field("seatName") String seatName, @Field("dishes") String dishes);
 
     /**
      * 订单详情
+     *
      * @param orderId
      * @return
      */
@@ -43,9 +45,14 @@ public interface OrderService {
 
     /**
      * 订单列表
+     *
      * @param hotelId
      * @return
      */
-   @GET("order/getOrderItem/{hotelId}")
-    Observable<List<TableInfo>> listOrder(@Path("hotelId") long hotelId);
+    @GET("order/getOrderItem/{hotelId}")
+    Observable<List<OrderInfo>> listOrder(@Path("hotelId") long hotelId);
+
+    @FormUrlEncoded
+    @POST("order/addDishes")
+    Observable<ResultInfo> addDishes(@Field("orderId") long orderId, @Field("orderTotal") Double orderTotal, @Field("dishes") String dishes);
 }

@@ -12,7 +12,7 @@ public class Seat implements Parcelable {
      * containNum : 6
      * seatId : 1
      * seatName : 座位01
-     * useStatus : 01
+     * useStatus : 01 (01:可以点餐，02：正在点餐)
      */
     private String seatType;
     private int containNum;

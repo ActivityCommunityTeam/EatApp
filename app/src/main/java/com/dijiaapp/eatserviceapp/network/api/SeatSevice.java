@@ -1,5 +1,7 @@
 package com.dijiaapp.eatserviceapp.network.api;
 
+import com.dijiaapp.eatserviceapp.data.OrderInfo;
+import com.dijiaapp.eatserviceapp.data.ResultInfo;
 import com.dijiaapp.eatserviceapp.data.Seat;
 
 import java.util.List;
@@ -21,5 +23,9 @@ public interface SeatSevice {
 
     @FormUrlEncoded
     @POST("dining/updateStatus")
-    String updateStatus(@Field("seatId") long id, @Field("useStatus") String status);
+    Observable<ResultInfo> updateStatus(@Field("seatId") String id, @Field("useStatus") String status);
+
+    @GET("dining/isOrder/{seatId}")
+    Observable<OrderInfo> isOrder(@Path("seatId") String seatId);
+    
 }

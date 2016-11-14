@@ -58,4 +58,16 @@ public class OrderDishes {
     public void setDishesUnit(String dishesUnit) {
         this.dishesUnit = dishesUnit;
     }
+
+    @Override
+    public String toString() {
+        return "OrderDishes{" +
+                "dishesId=" + dishesId +
+                ", dishesName='" + dishesName + '\'' +
+                ", orderNum=" + orderNum +
+                ", dishesPrice=" + dishesPrice +
+                ", totalPrice=" + totalPrice +
+                ", dishesUnit='" + dishesUnit + '\'' +
+                '}';
+    }
 }
