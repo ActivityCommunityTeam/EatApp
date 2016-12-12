@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.data.OrderInfo;
 import com.dijiaapp.eatserviceapp.kaizhuo.EnterActivityEvent;
+import com.dijiaapp.eatserviceapp.kaizhuo.SeatFragment;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -38,7 +39,7 @@ public class OrdersItemAdapter extends RecyclerView.Adapter<OrdersItemAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         final OrderInfo orderInfo = orderInfos.get(position);
         if (orderInfo.getStatusId().equals("03")) {
             holder.mOrderItemDone.setVisibility(View.GONE);
@@ -62,7 +63,12 @@ public class OrdersItemAdapter extends RecyclerView.Adapter<OrdersItemAdapter.Vi
         holder.mOrderItemDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                int seatid= SeatFragment.getSeatId(orderInfos.get(position).getSeatName());
                 EventBus.getDefault().post(new OrderOverEvent(orderInfo));
+
+                //网络操作
+
             }
         });
         holder.mOrderItemJiacan.setOnClickListener(new View.OnClickListener() {

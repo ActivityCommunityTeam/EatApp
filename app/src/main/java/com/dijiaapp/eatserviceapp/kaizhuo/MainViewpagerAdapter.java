@@ -15,6 +15,7 @@ public class MainViewpagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+        //点击table标签切换fragment
         return SeatFragment.newInstance(position);
     }
 

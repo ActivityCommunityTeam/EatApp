@@ -3,10 +3,8 @@ package com.dijiaapp.eatserviceapp.kaizhuo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -35,16 +33,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
-import io.realm.Case;
 import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-
-import static android.R.attr.id;
-import static android.R.attr.track;
-import static com.dijiaapp.eatserviceapp.network.Network.getSeatService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    //接收广播,跳转界面，设置包间人数
     @DebugLog
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void enterSeatNumberActivity(EnterActivityEvent enterActivityEvent) {
@@ -180,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
     private void setContent(int contentHome) {
         switch (contentHome) {
             case CONTENT_HOME:
+                //首页fragment
                 HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentByTag(HOME_TAG);
                 if (homeFragment == null) {
                     homeFragment = HomeFragment.newInstance("1", "2");
@@ -187,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
                 setFragment(homeFragment, HOME_TAG);
                 break;
             case CONTENT_ORDERS:
+                //订单fragment
                 OrdersFragment orderFragment = (OrdersFragment) getSupportFragmentManager().findFragmentByTag(ORDERS_TAG);
                 if (orderFragment == null) {
                     orderFragment = OrdersFragment.newInstance();
