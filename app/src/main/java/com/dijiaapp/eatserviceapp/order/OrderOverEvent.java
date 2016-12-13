@@ -7,8 +7,19 @@ import com.dijiaapp.eatserviceapp.data.OrderInfo;
  */
 public class OrderOverEvent {
     OrderInfo orderInfo ;
-    public OrderOverEvent(OrderInfo orderInfo) {
-        this.orderInfo = orderInfo;
+    private long seatId;
+    private String statusId;
+    public OrderOverEvent(int seatId,String statusId) {
+        this.seatId = seatId;
+        this.statusId = statusId;
+    }
+
+    public String getStatusId() {
+        return statusId;
+    }
+
+    public long getSeatId() {
+        return seatId;
     }
 
     public OrderInfo getOrderInfo() {

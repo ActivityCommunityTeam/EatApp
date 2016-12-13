@@ -30,6 +30,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hugo.weaving.DebugLog;
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.bottomBar)
     BottomBar mBottomBar;
     private static final int CONTENT_HOME = 1;
+    public static List<Long> isOverTableDatas;
     private CompositeSubscription mcompositeSubscription;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,15 +131,27 @@ public class MainActivity extends AppCompatActivity {
         mcompositeSubscription.add(isusedSup);
     }
 
-
+    /**
+     * 接收翻桌广播
+     * @param orderOverEvent
+     */
     @DebugLog
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void orderOverEvent(OrderOverEvent orderOverEvent) {
-        OrderInfo orderInfo = orderOverEvent.getOrderInfo();
-        String id = orderInfo.getSeatName();
-        submitOrderOver(id);
+        long id = orderOverEvent.getSeatId();
+        String _statusId = orderOverEvent.getStatusId();
+        if (_statusId.equals("01")) {
+            Toast.makeText(this, "订单未确认，不可翻桌！", Toast.LENGTH_SHORT).show();
+
+        }else if (_statusId.equals("02")){
+            submitOrderOver(id);
+        }
     }
 
+    /**
+     * 接收夹菜广播
+     * @param orderAddFoodEvent
+     */
     @DebugLog
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void orderAddFoodEvent(OrderAddFoodEvent orderAddFoodEvent) {
@@ -144,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @DebugLog
-    private void submitOrderOver(String id) {
+    private void submitOrderOver(final long id) {
        Subscription  subscription = Network.getSeatService().updateStatus(id, "01")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -163,7 +179,12 @@ public class MainActivity extends AppCompatActivity {
                     @DebugLog
                     @Override
                     public void onNext(ResultInfo resultInfo) {
-                        Toast.makeText(MainActivity.this, resultInfo.getMsg(), Toast.LENGTH_SHORT).show();
+                        if (isOverTableDatas==null){
+                            isOverTableDatas = new ArrayList<Long>();
+                        }
+                        isOverTableDatas.add(id);
+                        Toast.makeText(MainActivity.this, "正在翻桌！", Toast.LENGTH_SHORT).show();
+
                     }
                 });
 

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,6 +100,7 @@ public class SeatFragment extends Fragment {
                 .flatMap(new Func1<List<Seat>, Observable<Seat>>() {
                     @Override
                     public Observable<Seat> call(List<Seat> seats) {
+                        Seats=seats;
                         return Observable.from(seats);
                     }
                 })
@@ -136,14 +138,15 @@ public class SeatFragment extends Fragment {
                     @Override
                     public void onNext(List<Seat> seats) {
                         //获得网络桌位数据，更新fragment中显示
-
-                        Seats=seats;
                         seatRecyclerviewAdapter.setSeatList(seats);
                     }
                 });
     }
+    @DebugLog
     public static int getSeatId(String seatname){
         for(int i=0;i<Seats.size();i++){
+            String str=Seats.get(i).getSeatName();
+            Log.i("Daniel","SeatFragment---getSeatName---str"+str+"---"+i);
             if(Seats.get(i).getSeatName().equals(seatname)){
                 return Seats.get(i).getSeatId();
             }

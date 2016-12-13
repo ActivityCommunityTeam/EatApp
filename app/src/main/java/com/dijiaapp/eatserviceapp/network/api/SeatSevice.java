@@ -23,7 +23,7 @@ public interface SeatSevice {
 
     @FormUrlEncoded
     @POST("dining/updateStatus")
-    Observable<ResultInfo> updateStatus(@Field("seatId") String id, @Field("useStatus") String status);
+    Observable<ResultInfo> updateStatus(@Field("seatId") long id, @Field("useStatus") String status);
 
     @GET("dining/isOrder/{seatId}")
     Observable<OrderInfo> isOrder(@Path("seatId") String seatId);

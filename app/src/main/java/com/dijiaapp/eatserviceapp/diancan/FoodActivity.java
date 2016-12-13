@@ -26,17 +26,14 @@ import com.dijiaapp.eatserviceapp.data.FoodType;
 import com.dijiaapp.eatserviceapp.data.OrderInfo;
 import com.dijiaapp.eatserviceapp.data.Seat;
 import com.dijiaapp.eatserviceapp.data.UserInfo;
+import com.dijiaapp.eatserviceapp.kaizhuo.SeatFragment;
 import com.dijiaapp.eatserviceapp.network.Network;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,8 +49,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-import static android.R.id.list;
-import static com.dijiaapp.eatserviceapp.R.id.list_item;
 import static com.dijiaapp.eatserviceapp.R.id.pinnedListView;
 
 public class FoodActivity extends AppCompatActivity {
@@ -78,8 +73,12 @@ public class FoodActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * 打开加菜页面
+     * @param context
+     * @param orderInfo
+     */
     public static void startFoodActivity(Context context, OrderInfo orderInfo) {
-
         Intent intent = new Intent(context, FoodActivity.class);
         intent.putExtra("orderInfo", orderInfo);
         intent.putExtra("addFood", true);
@@ -379,7 +378,7 @@ public class FoodActivity extends AppCompatActivity {
     private void initData(Intent intent) {
         if (isAddFood) {
             orderInfo = intent.getParcelableExtra("orderInfo");
-            seatId = Integer.parseInt(orderInfo.getSeatName());
+            seatId = SeatFragment.getSeatId(orderInfo.getSeatName());
         } else {
             eatNumber = Integer.parseInt(intent.getStringExtra("number"));
             seat = intent.getParcelableExtra("seat");

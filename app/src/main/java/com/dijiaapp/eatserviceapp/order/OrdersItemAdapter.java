@@ -1,6 +1,7 @@
 package com.dijiaapp.eatserviceapp.order;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import com.dijiaapp.eatserviceapp.R;
 import com.dijiaapp.eatserviceapp.data.OrderInfo;
 import com.dijiaapp.eatserviceapp.kaizhuo.EnterActivityEvent;
+import com.dijiaapp.eatserviceapp.kaizhuo.MainActivity;
 import com.dijiaapp.eatserviceapp.kaizhuo.SeatFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -19,6 +21,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import hugo.weaving.DebugLog;
+
+import static com.dijiaapp.eatserviceapp.kaizhuo.MainActivity.isOverTableDatas;
 
 /**
  * Created by wjy on 2016/11/7.
@@ -27,9 +32,11 @@ import butterknife.ButterKnife;
 public class OrdersItemAdapter extends RecyclerView.Adapter<OrdersItemAdapter.ViewHolder> {
     List<OrderInfo> orderInfos;
 
+
     public int getLayout() {
         return R.layout.order_listitem;
     }
+
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -37,9 +44,9 @@ public class OrdersItemAdapter extends RecyclerView.Adapter<OrdersItemAdapter.Vi
 
         return new ViewHolder(view);
     }
-
+@DebugLog
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         final OrderInfo orderInfo = orderInfos.get(position);
         if (orderInfo.getStatusId().equals("03")) {
             holder.mOrderItemDone.setVisibility(View.GONE);
@@ -51,6 +58,20 @@ public class OrdersItemAdapter extends RecyclerView.Adapter<OrdersItemAdapter.Vi
         holder.mOrderItemEat.setText(orderInfo.getDinnerNum() + "");
         holder.mOrderItemServer.setText(orderInfo.getWaiterName());
         holder.mOrderItemStatus.setText(orderInfo.getStatusId());
+        int _seatid= SeatFragment.getSeatId(orderInfos.get(position).getSeatName());
+        Log.i("Daniel","---OrdersItemAdapter---onBindViewHolder--_seatid---"+_seatid+"---"+position);
+        //把已经翻过的桌不能加餐
+        if (MainActivity.isOverTableDatas!=null) {
+
+            for (int i = 0; i < MainActivity.isOverTableDatas.size(); i++) {
+                Log.i("Daniel","---OrdersItemAdapter---onBindViewHolder--isOverTableDatas.get(i)---"+isOverTableDatas.get(i));
+                if (isOverTableDatas.get(i)==_seatid) {
+                    Log.i("Daniel","---OrdersItemAdapter---i---"+i);
+//                    holder.mOrderItemJiacan.setEnabled(false);
+                }
+            }
+        }
+
 //        holder.mOrderItemName.setText(orderInfo.getOrderHeaderNo());
 
         holder.rootView.setOnClickListener(new View.OnClickListener() {
@@ -61,11 +82,18 @@ public class OrdersItemAdapter extends RecyclerView.Adapter<OrdersItemAdapter.Vi
             }
         });
         holder.mOrderItemDone.setOnClickListener(new View.OnClickListener() {
+            @DebugLog
             @Override
             public void onClick(View view) {
+                int _seatid= SeatFragment.getSeatId(orderInfos.get(position).getSeatName());
+                String _statusId = orderInfos.get(position).getStatusId();
+                Log.i("Daniel","OrdersItemAdapter---onClick---_statusId"+_statusId);
+               if(_statusId.equals("02")){
+                    holder.mOrderItemJiacan.setEnabled(false);
+                }
 
-                int seatid= SeatFragment.getSeatId(orderInfos.get(position).getSeatName());
-                EventBus.getDefault().post(new OrderOverEvent(orderInfo));
+                EventBus.getDefault().post(new OrderOverEvent(_seatid,_statusId));
+
 
                 //网络操作
 
